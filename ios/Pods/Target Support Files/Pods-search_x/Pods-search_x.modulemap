@@ -1,0 +1,6 @@
+module Pods_search_x {
+  umbrella header "Pods-search_x-umbrella.h"
+
+  export *
+  module * { export * }
+}
