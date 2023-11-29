@@ -13,3 +13,8 @@ yarn-debug.log*
 yarn-error.log*
 
 ios/Pods/
+ios/build/
+ios/.derivedData/
+ios/search_x.xcworkspace
+ios/search_x.xcodeproj
+android/app/build/
