@@ -1,26 +1,27 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# SearchX
 
-# Getting Started
+Let's you search for user information based on criteria such as the user's name, age, email and address.
+The user can then sort the results based on same criteria mentioned above.
 
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+## Setup locally
 
-## Step 1: Start the Metro Server
+> **Note**: Ensure you have done the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) before proceeding.
 
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
+Clone the project onto your local machine and cd into it.
 
-To start Metro, run the following command from the _root_ of your React Native project:
+Run the following command from the _root_ of the project:
 
 ```bash
-# using npm
-npm start
-
 # OR using Yarn
 yarn start
+
+# using npm
+npm start
 ```
 
-## Step 2: Start your Application
+## Start the application
 
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
+Open a _new_ terminal from the _root_ of the project. Run the following command to start the app on _Android_ or _iOS_:
 
 ### For Android
 
@@ -42,38 +43,25 @@ npm run ios
 yarn ios
 ```
 
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
+## Searching
 
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
+Once the app is initialized, you'll be presented with a search screen from where you can search user records. You can search based on the following criteria: name, age, address and email. The default criteria is "name".
 
-## Step 3: Modifying your App
+1. Type a text into the search box and hit enter.
+2. Tap on any one of the user records displayed to view details.
+3. You can tap on the filter button next to the search box to select a search criteria.
+4. The records will automatically be searched with the text you provided in step 1.
+5. You can use the paginator to view other records in the search results not currently displayed
+6. If your search returned nothing, an empty screen will be shown.
 
-Now that you have successfully run the app, let's modify it.
+## Sorting
 
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
+Once your search has returned results, you can sort the results in ascending order using these criteria: name, age, address and email.
 
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
+1. Tap on the sort filter adjacent to the 'Search Results' title
+2. Select a sort criteria
+3. Your search results are sorted by your selected sort criteria
 
 ### Now what?
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+Congratulations! Your tour of the SearchX app is now complete. You can keep searching with different strings and sort your results.
