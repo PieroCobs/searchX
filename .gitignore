@@ -117,6 +117,10 @@ vendor/
 /packages/react-native/template/ios/Podfile.lock
 /packages/rn-tester/Gemfile.lock
 /packages/**/RCTLegacyInteropComponents.mm
+/ios/Pods/
+ios/Pods/hermes-engine/destroot/Library/Frameworks/universal/hermes.xcframework/ios-arm64/hermes.framework/hermes
+ios/Pods/hermes-engine/destroot/Library/Frameworks/universal/hermes.xcframework/ios-arm64_x86_64-maccatalyst/hermes.framework/Versions/0/hermes
+
 
 # Ignore RNTester specific Pods, but keep the __offline_mirrors__ here.
 /packages/rn-tester/Pods/*
