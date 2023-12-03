@@ -15,8 +15,8 @@ import {TouchableOpacity} from 'react-native-gesture-handler';
 type Props = {
   currentPage: number;
   numberOfPages: number;
-  decrementCurrentPage: () => void;
-  incrementCurrentPage: () => void;
+  decrementCurrentPage: (page: number) => void;
+  incrementCurrentPage: (page: number) => void;
 };
 
 export default function Paginator({
@@ -34,6 +34,16 @@ export default function Paginator({
     return styles.defaultBackground;
   };
 
+  const handleDecrement = () => {
+    const page = currentPage === 1 ? currentPage : --currentPage;
+    decrementCurrentPage(page);
+  };
+
+  const handleIncrement = () => {
+    const page = currentPage === numberOfPages ? currentPage : ++currentPage;
+    incrementCurrentPage(page);
+  };
+
   return (
     <View style={styles.container}>
       <View>
@@ -49,7 +59,7 @@ export default function Paginator({
       <View style={styles.pager}>
         <TouchableOpacity
           style={[styles.button, determineButtonState(currentPage! > 1)]}
-          onPress={decrementCurrentPage}>
+          onPress={handleDecrement}>
           <Text style={styles.buttonText(currentPage! > 1)}>&laquo;</Text>
         </TouchableOpacity>
 
@@ -60,7 +70,7 @@ export default function Paginator({
             styles.button,
             determineButtonState(currentPage! < numberOfPages),
           ]}
-          onPress={incrementCurrentPage}>
+          onPress={handleIncrement}>
           <Text style={styles.buttonText(currentPage! < numberOfPages)}>
             &raquo;
           </Text>

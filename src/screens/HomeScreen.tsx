@@ -30,7 +30,7 @@ export default function HomeScreen() {
         <View style={[Styles.fullscreen]}>
           <Header />
           <Spacer height={24} />
-          <SearchResults records={records} />
+          <SearchResults records={records!} />
         </View>
       )}
     </SafeAreaView>

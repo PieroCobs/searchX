@@ -13,16 +13,19 @@ import {
   updateSearchStatus,
 } from '../redux/appSlice';
 import {RecordMap, Records} from '../types/user';
-import FilterCriteria from '../types/filter';
+import FilterCriteria, {FilterItem} from '../types/filter';
 import Paginator from './Paginator';
-import {PAGE_SIZE} from '../constants/numeric_constants';
+import searchRecords from '../util/searchRecords';
+import paginateData, {PaginatedData} from '../util/pagination';
+import sortRecords from '../util/sortRecords';
+import {convertMapToArray} from '../util/dataTransformation';
 
 type Props = {
-  records: Records | undefined;
+  records: Records;
 };
 
 export default function SearchResults({records}: Props) {
-  const [sortCriteria, setSortCriteria] = useState<FilterCriteria>();
+  const [sortCriteria, setSortCriteria] = useState<FilterCriteria>('name');
   const isSearching = useAppSelector(selectIsSearching);
   const searchTerm = useAppSelector(selectSearchTerm);
   const searchCriteria = useAppSelector(selectSearchCriteria);
@@ -32,83 +35,36 @@ export default function SearchResults({records}: Props) {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
+    let delay: NodeJS.Timeout;
     if (isSearching) {
-      searchRecords();
-      const delay = setTimeout(() => dispatch(updateSearchStatus(false)), 300);
-
-      return () => clearTimeout(delay);
+      runSearch();
+      delay = setTimeout(() => dispatch(updateSearchStatus(false)), 300);
     }
+    return () => clearTimeout(delay);
   }, [isSearching]);
 
-  const searchRecords = () => {
-    const results: Records = [];
-    for (let i = 0; i < records!.length; i++) {
-      if (
-        records![i][searchCriteria]
-          ?.toString()
-          ?.toLowerCase()
-          ?.includes(searchTerm!.toLowerCase())
-      ) {
-        results.push(records![i]);
-      }
-    }
-    sortSearchResults(results!, sortCriteria);
+  const runSearch = () => {
+    const results = searchRecords({records, searchTerm, searchCriteria});
+    const sortedRecords = sortRecords({data: results, sortCriteria});
+    const paginatedData = paginateData(sortedRecords);
+    updateState(paginatedData);
   };
 
-  const sortSearchResults = (data: Records, sortBy?: FilterCriteria) => {
-    let results: RecordMap;
-    let pageCount: number;
-    if (sortBy === undefined) {
-      ({results, pageCount} = paginateData(data));
-    } else {
-      let sortedRecords: Records = [];
-      if (sortCriteria === 'age') {
-        sortedRecords = sortNumeric(data);
-      } else {
-        sortedRecords = sortAlphaNumeric(data, sortBy);
-      }
-      ({results, pageCount} = paginateData(sortedRecords));
-    }
-    setSearchResults(results);
-    setNumberOfPages(pageCount);
-    setCurrentPage(1);
-  };
-
-  const sortNumeric = (data: Records): Records => {
-    let results = data;
-    for (let i = results.length - 1; i > 0; i--) {
-      let j = Math.floor(Math.random() * (i + 1));
-      let temp = results[i];
-      results[i] = results[j];
-      results[j] = temp;
-    }
-    return results;
-  };
-
-  const sortAlphaNumeric = (data: Records, sortBy: FilterCriteria): Records => {
-    return data.sort((a, b) => {
-      let x = a[sortBy].toString().toLowerCase();
-      let y = b[sortBy].toString().toLowerCase();
-      return x.localeCompare(y);
+  const sortSearchResults = (criteria: FilterItem) => {
+    const value = criteria.value;
+    setSortCriteria(value);
+    const sortedRecords = sortRecords({
+      data: convertMapToArray(searchResults!),
+      sortCriteria: value,
     });
+    const paginatedData = paginateData(sortedRecords);
+    updateState(paginatedData);
   };
 
-  const paginateData = (data: Records) => {
-    const results = new Map();
-    let pageCount = 0;
-    for (let i = 0; i < data.length; i += PAGE_SIZE) {
-      const page = data.slice(i, i + PAGE_SIZE);
-      const pageNumber = i / PAGE_SIZE + 1;
-      results.set(pageNumber, page);
-    }
-    pageCount = results.size;
-    return {results, pageCount};
-  };
-
-  const flattenMap = (item: RecordMap) => {
-    const data = Array.from(item.values());
-    const flattenedData = data.flat();
-    return flattenedData;
+  const updateState = (data: PaginatedData) => {
+    setSearchResults(data.results);
+    setNumberOfPages(data.numberOfPages);
+    setCurrentPage(data.currentPage);
   };
 
   if (isSearching) {
@@ -159,11 +115,7 @@ export default function SearchResults({records}: Props) {
           <Text style={Styles.subText}>Sort by </Text>
           <FilterDropdown
             value={sortCriteria}
-            onChange={item => {
-              const value = item.value;
-              setSortCriteria(value);
-              sortSearchResults(flattenMap(searchResults!), value);
-            }}
+            onChange={sortSearchResults}
             buttonStyle={[style.buttonStyle]}
             renderLeftIcon={() => (
               <Text style={[Styles.subText, Styles.textCapitalize]}>
@@ -185,8 +137,8 @@ export default function SearchResults({records}: Props) {
         <Paginator
           currentPage={currentPage}
           numberOfPages={numberOfPages}
-          decrementCurrentPage={() => setCurrentPage(cp => (cp -= 1))}
-          incrementCurrentPage={() => setCurrentPage(cp => (cp += 1))}
+          decrementCurrentPage={page => setCurrentPage(page)}
+          incrementCurrentPage={page => setCurrentPage(page)}
         />
       )}
     </View>
