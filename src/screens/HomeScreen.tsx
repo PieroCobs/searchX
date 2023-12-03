@@ -12,7 +12,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
   const navigation = useNavigation();
-  const {isLoading, error, refetch} = useFetch();
+  const {records, isLoading, error, refetch} = useFetch();
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -30,7 +30,7 @@ export default function HomeScreen() {
         <View style={[Styles.fullscreen]}>
           <Header />
           <Spacer height={24} />
-          <SearchResults />
+          <SearchResults records={records} />
         </View>
       )}
     </SafeAreaView>

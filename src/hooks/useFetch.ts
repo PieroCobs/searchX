@@ -1,14 +1,12 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import {useEffect, useState} from 'react';
 import {Platform} from 'react-native';
 import RNFS from 'react-native-fs';
-import {initRecords} from '../redux/appSlice';
-import {useAppDispatch} from './redux';
+import {Records} from '../types/user';
 
 const useFetch = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const dispatch = useAppDispatch();
+  const [records, setRecords] = useState<Records | undefined>();
 
   const importRecords = async () => {
     setIsLoading(true);
@@ -24,7 +22,7 @@ const useFetch = () => {
       }
       console.log('Data acquired');
       const data = JSON.parse(result);
-      dispatch(initRecords(data));
+      setRecords(data);
     } catch (e) {
       console.error('Error:', e);
       setError(e as any);
@@ -41,7 +39,7 @@ const useFetch = () => {
     importRecords();
   };
 
-  return {isLoading, error, refetch};
+  return {records, isLoading, error, refetch};
 };
 
 export default useFetch;

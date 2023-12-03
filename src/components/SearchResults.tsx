@@ -8,7 +8,6 @@ import FilterDropdown from './Filter';
 import {useAppDispatch, useAppSelector} from '../hooks/redux';
 import {
   selectIsSearching,
-  selectRecords,
   selectSearchCriteria,
   selectSearchTerm,
   updateSearchStatus,
@@ -16,64 +15,72 @@ import {
 import {RecordMap, Records} from '../types/user';
 import FilterCriteria from '../types/filter';
 import Paginator from './Paginator';
-import {
-  selectCurentPage,
-  selectSearchResult,
-  setResults,
-} from '../redux/searchResultSlice';
 import {PAGE_SIZE} from '../constants/numeric_constants';
 
-export default function SearchResults() {
+type Props = {
+  records: Records | undefined;
+};
+
+export default function SearchResults({records}: Props) {
   const [sortCriteria, setSortCriteria] = useState<FilterCriteria>();
   const isSearching = useAppSelector(selectIsSearching);
-  const records = useAppSelector(selectRecords);
   const searchTerm = useAppSelector(selectSearchTerm);
   const searchCriteria = useAppSelector(selectSearchCriteria);
-  const searchResultsMap = useAppSelector(selectSearchResult);
-  const currentPage = useAppSelector(selectCurentPage);
+  const [searchResults, setSearchResults] = useState<RecordMap>();
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [numberOfPages, setNumberOfPages] = useState<number>(0);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (isSearching) {
-      const results: Records = [];
-      for (let i = 0; i < records!.length; i++) {
-        if (
-          records![i][searchCriteria]
-            ?.toString()
-            ?.toLowerCase()
-            ?.includes(searchTerm!.toLowerCase())
-        ) {
-          results.push(records![i]);
-        }
-      }
-      sortSearchResults(results!, sortCriteria);
+      searchRecords();
       const delay = setTimeout(() => dispatch(updateSearchStatus(false)), 300);
 
       return () => clearTimeout(delay);
     }
   }, [isSearching]);
 
-  const sortSearchResults = (data: Records, sortBy?: FilterCriteria) => {
-    if (sortBy === undefined) {
-      dispatch(setResults(paginateData(data)));
-    } else {
-      let results: Records = [];
-      if (sortCriteria === 'age') {
-        results = sortNumeric(data);
-      } else {
-        results = sortAlphaNumeric(data, sortBy);
+  const searchRecords = () => {
+    const results: Records = [];
+    for (let i = 0; i < records!.length; i++) {
+      if (
+        records![i][searchCriteria]
+          ?.toString()
+          ?.toLowerCase()
+          ?.includes(searchTerm!.toLowerCase())
+      ) {
+        results.push(records![i]);
       }
-      dispatch(setResults(paginateData(results)));
     }
+    sortSearchResults(results!, sortCriteria);
+  };
+
+  const sortSearchResults = (data: Records, sortBy?: FilterCriteria) => {
+    let results: RecordMap;
+    let pageCount: number;
+    if (sortBy === undefined) {
+      ({results, pageCount} = paginateData(data));
+    } else {
+      let sortedRecords: Records = [];
+      if (sortCriteria === 'age') {
+        sortedRecords = sortNumeric(data);
+      } else {
+        sortedRecords = sortAlphaNumeric(data, sortBy);
+      }
+      ({results, pageCount} = paginateData(sortedRecords));
+    }
+    setSearchResults(results);
+    setNumberOfPages(pageCount);
+    setCurrentPage(1);
   };
 
   const sortNumeric = (data: Records): Records => {
     let results = data;
     for (let i = results.length - 1; i > 0; i--) {
       let j = Math.floor(Math.random() * (i + 1));
-      let k = results[i];
+      let temp = results[i];
       results[i] = results[j];
-      results[j] = k;
+      results[j] = temp;
     }
     return results;
   };
@@ -82,29 +89,20 @@ export default function SearchResults() {
     return data.sort((a, b) => {
       let x = a[sortBy].toString().toLowerCase();
       let y = b[sortBy].toString().toLowerCase();
-      if (x < y) {
-        return -1;
-      }
-      if (x > y) {
-        return 1;
-      }
-      return 0;
+      return x.localeCompare(y);
     });
   };
 
   const paginateData = (data: Records) => {
     const results = new Map();
-
-    let lastPage = 1;
-    let numberOfPages = 0;
+    let pageCount = 0;
     for (let i = 0; i < data.length; i += PAGE_SIZE) {
       const page = data.slice(i, i + PAGE_SIZE);
       const pageNumber = i / PAGE_SIZE + 1;
       results.set(pageNumber, page);
-      lastPage = pageNumber;
     }
-    numberOfPages = results.size;
-    return {results, numberOfPages, lastPage};
+    pageCount = results.size;
+    return {results, pageCount};
   };
 
   const flattenMap = (item: RecordMap) => {
@@ -121,7 +119,7 @@ export default function SearchResults() {
     );
   }
 
-  if (searchResultsMap === undefined) {
+  if (searchResults === undefined) {
     return (
       <View
         style={[Styles.fullscreen, Styles.centerContent, Styles.pagePaddingX]}>
@@ -134,7 +132,7 @@ export default function SearchResults() {
     );
   }
 
-  if (searchResultsMap?.size === 0) {
+  if (searchResults?.size === 0) {
     return (
       <View
         style={[Styles.fullscreen, Styles.centerContent, Styles.pagePaddingX]}>
@@ -164,7 +162,7 @@ export default function SearchResults() {
             onChange={item => {
               const value = item.value;
               setSortCriteria(value);
-              sortSearchResults(flattenMap(searchResultsMap!), value);
+              sortSearchResults(flattenMap(searchResults!), value);
             }}
             buttonStyle={[style.buttonStyle]}
             renderLeftIcon={() => (
@@ -178,13 +176,18 @@ export default function SearchResults() {
       <Spacer height={8} />
 
       <FlatList
-        data={searchResultsMap?.get(currentPage!)}
+        data={searchResults?.get(currentPage!)}
         renderItem={({item}) => <SearchResultCard key={item._id} user={item} />}
         contentContainerStyle={style.flatList}
       />
 
-      {searchResultsMap !== undefined && searchResultsMap!.size > 0 && (
-        <Paginator />
+      {searchResults !== undefined && searchResults!.size > 0 && (
+        <Paginator
+          currentPage={currentPage}
+          numberOfPages={numberOfPages}
+          decrementCurrentPage={() => setCurrentPage(cp => (cp -= 1))}
+          incrementCurrentPage={() => setCurrentPage(cp => (cp += 1))}
+        />
       )}
     </View>
   );

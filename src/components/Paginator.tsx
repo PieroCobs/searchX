@@ -1,23 +1,23 @@
 import React from 'react';
 import {StyleProp, StyleSheet, Text, View, ViewStyle} from 'react-native';
-import {useAppSelector, useAppDispatch} from '../hooks/redux';
-import {
-  selectCurentPage,
-  selectNumberOfPages,
-  selectLastPage,
-  decrementCurrentPage,
-  incrementCurrentPage,
-} from '../redux/searchResultSlice';
 import Palette from '../constants/palette';
 import {PAGE_SIZE} from '../constants/numeric_constants';
 import Styles from '../styles/styles';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 
-export default function Paginator() {
-  const currentPage = useAppSelector(selectCurentPage);
-  const numberOfPages = useAppSelector(selectNumberOfPages);
-  const lastPage = useAppSelector(selectLastPage);
-  const dispatch = useAppDispatch();
+type Props = {
+  currentPage: number;
+  numberOfPages: number;
+  decrementCurrentPage: () => void;
+  incrementCurrentPage: () => void;
+};
+
+export default function Paginator({
+  currentPage,
+  numberOfPages,
+  decrementCurrentPage,
+  incrementCurrentPage,
+}: Props) {
   const min = (currentPage! - 1) * PAGE_SIZE + 1;
 
   const determineButtonState = (isActive: boolean): StyleProp<ViewStyle> => {
@@ -42,19 +42,18 @@ export default function Paginator() {
       <View style={styles.pager}>
         <TouchableOpacity
           style={[styles.button, determineButtonState(currentPage! > 1)]}
-          onPress={() => {
-            return dispatch(decrementCurrentPage(null));
-          }}>
+          onPress={decrementCurrentPage}>
           <Text>&laquo;</Text>
         </TouchableOpacity>
 
         <Text style={Styles.contentHeading}>{currentPage}</Text>
 
         <TouchableOpacity
-          style={[styles.button, determineButtonState(currentPage! < lastPage)]}
-          onPress={() => {
-            return dispatch(incrementCurrentPage(null));
-          }}>
+          style={[
+            styles.button,
+            determineButtonState(currentPage! < numberOfPages),
+          ]}
+          onPress={incrementCurrentPage}>
           <Text>&raquo;</Text>
         </TouchableOpacity>
       </View>
