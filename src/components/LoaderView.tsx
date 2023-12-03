@@ -8,11 +8,14 @@ import Spacer from './Spacer';
 export default function LoaderView() {
   return (
     <View style={loaderStyle.container}>
-      <ActivityIndicator size="large" color={Palette.primary} />
-      <Text style={Styles.h2}>SearchX</Text>
-      <Spacer height={32} />
-      <Text style={loaderStyle.subText}>Initializing app</Text>
+      <View
+        style={[Styles.fullscreen, Styles.alignCenter, Styles.centerContent]}>
+        <ActivityIndicator size="large" color={Palette.primary} />
+        <Text style={Styles.h2}>SearchX</Text>
+      </View>
+      <Text style={loaderStyle.subText}>Initializing app...</Text>
       <Text style={loaderStyle.subText}>this may take a while</Text>
+      <Spacer height={32} />
     </View>
   );
 }

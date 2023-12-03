@@ -1,5 +1,12 @@
 import React from 'react';
-import {StyleProp, StyleSheet, Text, View, ViewStyle} from 'react-native';
+import {
+  StyleProp,
+  StyleSheet,
+  Text,
+  TextStyle,
+  View,
+  ViewStyle,
+} from 'react-native';
 import Palette from '../constants/palette';
 import {PAGE_SIZE} from '../constants/numeric_constants';
 import Styles from '../styles/styles';
@@ -43,7 +50,7 @@ export default function Paginator({
         <TouchableOpacity
           style={[styles.button, determineButtonState(currentPage! > 1)]}
           onPress={decrementCurrentPage}>
-          <Text>&laquo;</Text>
+          <Text style={styles.buttonText(currentPage! > 1)}>&laquo;</Text>
         </TouchableOpacity>
 
         <Text style={Styles.contentHeading}>{currentPage}</Text>
@@ -54,7 +61,9 @@ export default function Paginator({
             determineButtonState(currentPage! < numberOfPages),
           ]}
           onPress={incrementCurrentPage}>
-          <Text>&raquo;</Text>
+          <Text style={styles.buttonText(currentPage! < numberOfPages)}>
+            &raquo;
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -98,4 +107,9 @@ const styles = StyleSheet.create({
   defaultBackground: {
     backgroundColor: Palette.primaryAccent,
   },
+
+  buttonText: (shouldColor: boolean): StyleProp<TextStyle> => ({
+    color: shouldColor ? Palette.white : Palette.textBase,
+    fontSize: 20,
+  }),
 });
